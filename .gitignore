@@ -1,0 +1,5 @@
+./electron-chat-ui/node_modules
+./electron-chat-ui/out
+./electron-chat-ui/.webpack
+./electron-chat-ui/lib
+./electron-chat-ui/.vscode
