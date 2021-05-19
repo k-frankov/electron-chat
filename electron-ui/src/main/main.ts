@@ -29,6 +29,8 @@ let mainWindow: null | BrowserWindow;
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
+    minWidth: 600,
+    minHeight: 300,
     width: 800,
     height: 600,
     webPreferences: {
@@ -41,7 +43,8 @@ const createWindow = () => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  mainWindow!.webContents.openDevTools();
+
 
   // Emitted when the window is closed.
   mainWindow.on("closed", () => {

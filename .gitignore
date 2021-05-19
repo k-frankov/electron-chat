@@ -3,3 +3,6 @@
 ./electron-chat-ui/.webpack
 ./electron-chat-ui/lib
 ./electron-chat-ui/.vscode
+/ElectronChatBackend/.vs
+/ElectronChatBackend/ElectronChatAPI/bin
+/ElectronChatBackend/ElectronChatAPI/obj

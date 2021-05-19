@@ -74,9 +74,19 @@
     }
   },
   "dependencies": {
+    "@chakra-ui/react": "^1.6.2",
+    "@emotion/react": "^11.4.0",
+    "@emotion/styled": "^11.3.0",
     "@hot-loader/react-dom": "^17.0.1",
+    "@types/react-redux": "^7.1.16",
+    "@types/redux-thunk": "^2.1.0",
+    "framer-motion": "^4.1.17",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "react-icons": "^4.2.0",
+    "react-redux": "^7.2.4",
+    "redux": "^4.1.0",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.16",
@@ -97,6 +107,7 @@
     "@types/node": "^14.14.42",
     "@types/react": "^17.0.4",
     "@types/react-dom": "^17.0.3",
+    "@types/redux": "^3.6.0",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "auto-changelog": "^2.2.1",

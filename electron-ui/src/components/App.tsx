@@ -1,16 +1,31 @@
 import React from "react";
 import { hot } from "react-hot-loader/root";
+import { Button, IconButton } from "@chakra-ui/button";
+import { useColorMode } from "@chakra-ui/color-mode";
+import { Flex, Spacer, VStack } from "@chakra-ui/layout";
+import { FaSun, FaMoon } from "react-icons/fa"
+import { useDispatch, useSelector } from "react-redux";
+import { bindActionCreators } from "redux";
+import { actionCreators, State } from "../state";
 
 import "./style.css";
 
 function App() {
+  const dispatch = useDispatch();
+  const { logIn, logOut } = bindActionCreators(actionCreators, dispatch);
+  const userAuthState = useSelector((state: State) => state.userAuthState);
+
+  const { colorMode, toggleColorMode } = useColorMode();
+  const isDark = colorMode === 'dark';
+
   return (
-    <div>
-      <h3>Hello From Electron App</h3>
-      <h4>Electron: {process.versions.electron}</h4>
-      <h4>Chrome: {process.versions.chrome}</h4>
-      <h4>Node: {process.versions.node}</h4>
-    </div>
+    <VStack p="2">
+      <Flex w="100%" p="1" border="1px" borderRadius={12}>
+        <Spacer />
+        { userAuthState ? <Button style={{borderRadius: 20,}} onClick={() => logOut()}>LogOut</Button> : <div></div>}
+        <IconButton ml="8" aria-label="color theme switch" onClick={toggleColorMode} icon={isDark ? <FaSun /> : <FaMoon />}/>
+      </Flex>
+    </VStack>
   );
 }
 
