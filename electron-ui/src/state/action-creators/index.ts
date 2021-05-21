@@ -3,7 +3,7 @@ import { Dispatch } from "redux";
 import { Action } from "../actions";
 
 export const logIn = () => {
-    return (dispatch: Dispatch<Action>) => {
+    return (dispatch: Dispatch<Action>): void => {
         dispatch({
             type: ActionType.USER_LOGGED_IN
         })
@@ -11,7 +11,7 @@ export const logIn = () => {
 }
 
 export const logOut = () => {
-    return (dispatch: Dispatch<Action>) => {
+    return (dispatch: Dispatch<Action>): void => {
         dispatch({
             type: ActionType.USER_LOGGED_OUT
         })

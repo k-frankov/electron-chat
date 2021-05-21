@@ -6,3 +6,7 @@
 /ElectronChatBackend/.vs
 /ElectronChatBackend/ElectronChatAPI/bin
 /ElectronChatBackend/ElectronChatAPI/obj
+/ElectronChatBackend/ElectronChatCosmosDB/ElectronChatCosmosDB.csproj.user
+/ElectronChatBackend/ElectronChatCosmosDB/obj/
+/ElectronChatBackend/ElectronChatCosmosDB/bin/
+/ElectronChatBackend/.DS_Store

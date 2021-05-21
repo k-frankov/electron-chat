@@ -1,3 +1,6 @@
+using ElectronChatCosmosDB;
+using ElectronChatCosmosDB.Interfaces;
+using ElectronChatCosmosDB.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -15,13 +18,23 @@ namespace ElectronChatAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddControllers();
+            this.InitDatabase();
+
+            services.AddScoped<IUserRepository, UserRepository>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        protected void InitDatabase()
+        {
+            DBConfiguration.Initialize(
+                this.Configuration.GetValue<string>("DBEndpointUrl"),
+                this.Configuration.GetValue<string>("DBPrimaryKey"),
+                this.Configuration.GetValue<string>("DBName"));
+        }
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -29,10 +42,10 @@ namespace ElectronChatAPI
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
