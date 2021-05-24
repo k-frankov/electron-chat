@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using ElectronChatAPI.Hubs;
+using System.Threading.Tasks;
 
 namespace ElectronChatAPI
 {
@@ -20,14 +25,59 @@ namespace ElectronChatAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
-            services.AddControllers();
-            this.InitDatabase();
+            services.AddCors(options =>
+                options.AddPolicy("CorsPolicy",
+                    builder =>
+                        builder.AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .WithOrigins("http://localhost:3000")
+                        .AllowCredentials()));
 
+            services.AddMemoryCache();
+
+            services.AddControllers();
+
+            this.InitDatabase();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IChannelRepository, ChannelRepository>();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = this.Configuration.GetValue<string>("JwtIssuer"),
+                        ValidAudience = this.Configuration.GetValue<string>("JwtIssuer"),
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(
+                                Encoding.UTF8.GetBytes(Configuration.GetValue<string>("JwtKey")
+                            )),
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+                            if (string.IsNullOrEmpty(accessToken) == false)
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
+
+            services.AddSignalR(options => { options.EnableDetailedErrors = true; });
         }
 
-        protected void InitDatabase()
+        protected virtual void InitDatabase()
         {
             DBConfiguration.Initialize(
                 this.Configuration.GetValue<string>("DBEndpointUrl"),
@@ -42,14 +92,15 @@ namespace ElectronChatAPI
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            app.UseHttpsRedirection();
+            app.UseCors("CorsPolicy");
 
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<ElectronChatHub>("/chat");
                 endpoints.MapControllers();
             });
         }

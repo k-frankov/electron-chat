@@ -11,15 +11,7 @@ namespace ElectronChatCosmosDB.Repositories
     {
         public const string ContainerName = "Users";
 
-        public UserRepository()
-        {
-            using (CosmosClient client = base.GetCosmosClient())
-            {
-                Database db = client.GetDatabase(base.dBConfiguration.DBName);
-            }
-        }
-
-        public async Task<UserEntity> CreateUser(UserEntity userEntity)
+        public async Task<UserEntity> CreateUserAsync(UserEntity userEntity)
         {
             userEntity.id = Guid.NewGuid();
             using (CosmosClient client = base.GetCosmosClient())
@@ -32,7 +24,7 @@ namespace ElectronChatCosmosDB.Repositories
             }
         }
 
-        public async Task<UserEntity> GetUserByUserName(string userName)
+        public async Task<UserEntity> GetUserByUserNameAsync(string userName)
         {
             using (CosmosClient client = base.GetCosmosClient())
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using ElectronChatCosmosDB.Repositories;
 using Microsoft.Azure.Cosmos;
 
 namespace ElectronChatCosmosDB
@@ -32,9 +33,16 @@ namespace ElectronChatCosmosDB
             using (CosmosClient client = new CosmosClient(endpointUrl, primaryKey))
             {
                 Database db = await client.CreateDatabaseIfNotExistsAsync(dbName);
-                await client.GetDatabase(dbName).DefineContainer(name: "Users", partitionKeyPath: "/UserName")
+                await client.GetDatabase(dbName).DefineContainer(name: UserRepository.ContainerName, partitionKeyPath: "/UserName")
                     .WithUniqueKey()
                         .Path("/UserName")
+                    .Attach()
+                    .CreateIfNotExistsAsync();
+
+                await client.GetDatabase(dbName).DefineContainer(name: ChannelRepository.ContainerName, partitionKeyPath: "/ChannelName")
+                    .WithUniqueKey()
+                        .Path("/UserName")
+                        .Path("/ChannelName")
                     .Attach()
                     .CreateIfNotExistsAsync();
             }

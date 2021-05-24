@@ -5,7 +5,7 @@ namespace ElectronChatCosmosDB.Interfaces
 {
     public interface IUserRepository
     {
-        Task<UserEntity> CreateUser(UserEntity userEntity);
-        Task<UserEntity> GetUserByUserName(string userName);
+        Task<UserEntity> CreateUserAsync(UserEntity userEntity);
+        Task<UserEntity> GetUserByUserNameAsync(string userName);
     }
 }

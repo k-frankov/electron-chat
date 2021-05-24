@@ -12,7 +12,7 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { FaUserAlt, FaLock } from "react-icons/fa";
-import { signUpApiCall } from "../../api/authApi";
+import { signUpApiCall } from "../../api/api";
 import { useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { actionCreators } from "../../state";
@@ -30,11 +30,15 @@ const SignUp = (): JSX.Element => {
 
   async function doSignUp() {
     setInProgress(true);
-    const errorsFromApi = await signUpApiCall(userName, password);
-    if (errorsFromApi === undefined || errorsFromApi.length === 0) {
-      logIn();
+    const authResponse = await signUpApiCall(userName, password);
+    if (authResponse.errors === undefined || authResponse.errors.length === 0) {
+      if (authResponse.user !== undefined && authResponse.user !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        logIn(authResponse.user!);
+      }
     } else {
-      setErrors(errorsFromApi);
+      setErrors(authResponse.errors);
+
       setUserName("");
       setPassword("");
       setInProgress(false);

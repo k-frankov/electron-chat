@@ -6,16 +6,17 @@ import { Flex, Spacer, VStack } from "@chakra-ui/layout";
 import { FaSun, FaMoon } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
-import { actionCreators, UserAuthState } from "../state";
+import { actionCreators, AuthenticatedUser } from "../state";
 
 import "./style.css";
 import LogInOrSignup from "./auth/LogInOrSignUp";
+import MainPage from "./MainPage/MainPage";
 
 function App() {
   const dispatch = useDispatch();
   const { logOut } = bindActionCreators(actionCreators, dispatch);
   const userAuthState = useSelector(
-    (state: UserAuthState) => state.userAuthState,
+    (state: AuthenticatedUser) => state.authenticatedUser,
   );
 
   const { colorMode, toggleColorMode } = useColorMode();
@@ -23,11 +24,16 @@ function App() {
 
   return (
     <VStack p="2" minH="100vh" justifyContent="start">
-      <Flex w="100%" p="1" border="1px" borderRadius={12}>
+      <Flex
+        w="100%"
+        p="1"
+        border="1px"
+        borderRadius={4}
+      >
         <Spacer />
         {userAuthState ? (
-          <Button style={{ borderRadius: 20 }} onClick={() => logOut()}>
-            LogOut
+          <Button style={{ borderRadius: 16 }} onClick={() => logOut()}>
+            Log out, {userAuthState.userName}
           </Button>
         ) : null}
         <IconButton
@@ -37,7 +43,7 @@ function App() {
           icon={isDark ? <FaSun /> : <FaMoon />}
         />
       </Flex>
-      {userAuthState ? <h1>Wellcome to chat!</h1> : <LogInOrSignup />}
+      {userAuthState ? <MainPage /> : <LogInOrSignup />}
     </VStack>
   );
 }
