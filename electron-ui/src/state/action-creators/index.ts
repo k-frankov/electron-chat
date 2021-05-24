@@ -1,6 +1,6 @@
 import { ActionType } from "../action-types";
 import { Dispatch } from "redux";
-import { UserAuthAction, ChatHubConnectionStateAction, ChannelsReceived } from "../actions";
+import { UserAuthAction, ChatHubConnectionStateAction, ChannelsReceived, ChannelJoined, LongOperation } from "../actions";
 import { ChatUser } from "../models/chatUser";
 import ChatHubConnection from "../../api/hubConnecton";
 
@@ -48,9 +48,18 @@ export const gotChannels = (payload: string[]) => {
 }
 
 export const longOperationSwitch = () => {
-  return (dispatch: Dispatch): void => {
+  return (dispatch: Dispatch<LongOperation>): void => {
     dispatch({
       type: ActionType.LONGOPERATION,
+    });
+  };
+};
+
+export const channelJoined = (payload: string) => {
+  return (dispatch: Dispatch<ChannelJoined>): void => {
+    dispatch({
+      type: ActionType.CHANNEL_JOINED,
+      payload: payload,
     });
   };
 };

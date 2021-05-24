@@ -29,6 +29,12 @@ interface LongOperationAction {
   type: ActionType.LONGOPERATION;
 }
 
+interface ChannelJoinedAction {
+  type: ActionType.CHANNEL_JOINED;
+  payload: string;
+}
+
+export type ChannelJoined = ChannelJoinedAction;
 export type LongOperation = LongOperationAction;
 export type ChannelsReceived = ChannelsReceivedAction;
 export type UserAuthAction = UserLoggedInActoin | UserLoggedOutAction;

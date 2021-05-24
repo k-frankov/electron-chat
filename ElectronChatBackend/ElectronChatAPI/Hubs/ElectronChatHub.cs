@@ -69,7 +69,7 @@ namespace ElectronChatAPI.Hubs
         {
             string userName = this.Context.User.GetUserName();
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-            await Clients.Group(groupName).SendAsync("Send", $"{Context.ConnectionId} has left the channel.");
+            await Clients.Group(groupName).SendAsync("Send", $"{userName} has left the channel.");
         }
 
         private async Task LeaveGroupIfInGroup()

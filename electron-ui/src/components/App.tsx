@@ -6,7 +6,7 @@ import { Flex, Spacer, VStack } from "@chakra-ui/layout";
 import { FaSun, FaMoon } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
-import { actionCreators, AuthenticatedUser } from "../state";
+import { actionCreators, AuthenticatedUser, ChannelJoined } from "../state";
 
 import "./style.css";
 import LogInOrSignup from "./auth/LogInOrSignUp";
@@ -20,6 +20,9 @@ function App() {
     (state: AuthenticatedUser) => state.authenticatedUser,
   );
 
+  const channelJoined = useSelector(
+    (state: ChannelJoined) => state.channelJoined,
+  );
 
   const { colorMode, toggleColorMode } = useColorMode();
   const isDark = colorMode === "dark";
@@ -32,6 +35,8 @@ function App() {
         border="1px"
         borderRadius={4}
       >
+        <Spacer />
+        {channelJoined !== "" ? <Button style={{ borderRadius: 16 }} onClick={() => logOut()} disabled={true}>Channel: {channelJoined}</Button> : null}
         <Spacer />
         {userAuthState ? (
           <Button style={{ borderRadius: 16 }} onClick={() => logOut()}>

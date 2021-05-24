@@ -5,4 +5,5 @@ export enum ActionType {
     CHAT_HUB_REMOVED = "chatHubRemoved",
     CHANNELS_RECEIVED = "channelsReceived",
     LONGOPERATION = "longOperation",
+    CHANNEL_JOINED = "channelJoined",
 }

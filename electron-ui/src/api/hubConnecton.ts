@@ -5,7 +5,7 @@ import {
 } from "@microsoft/signalr";
 
 import { store } from "../state";
-import { gotChannels, longOperationSwitch, } from "../state/action-creators";
+import { gotChannels, longOperationSwitch, channelJoined } from "../state/action-creators";
 
 interface ChannelJoinedResponse {
   groupJoined: boolean,
@@ -46,7 +46,9 @@ class ChatHubConnection {
 
     this.hubConnection.on("ChannelJoined", (response: ChannelJoinedResponse) => {
       store.dispatch(longOperationSwitch() as any);
-      console.log(response);
+      if (response.groupJoined) {
+        store.dispatch(channelJoined(response.groupName) as any);
+      }
     });
 
     return connectionEstablished;

@@ -34,7 +34,6 @@ const MainPage = (): JSX.Element => {
   });
 
   useEffect(() => {
-    
     async function createHubConnection() {
       const hub = new ChatHubConnection();
       hub
@@ -46,12 +45,11 @@ const MainPage = (): JSX.Element => {
           console.log(err);
         });
     }
-  
+
     if (chatHub === null) {
-      console.log("asdfasdf")
       createHubConnection();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatHub])
 
   return (
@@ -78,7 +76,7 @@ const MainPage = (): JSX.Element => {
           paddingTop="1"
           paddingBottom="1"
           spacing={3}
-          overflow="scroll"
+          overflow="auto"
           style={{ maxHeight: "calc(100vh - 190px)" }}
         >
           {channels.map((e, i) => {
@@ -120,7 +118,6 @@ const MainPage = (): JSX.Element => {
       </Modal>
 
     </Flex>
-
   );
 };
 
