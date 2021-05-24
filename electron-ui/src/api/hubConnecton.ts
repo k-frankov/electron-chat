@@ -5,7 +5,7 @@ import {
 } from "@microsoft/signalr";
 
 import { store } from "../state";
-import { gotChannels } from "../state/action-creators";
+import { gotChannels, longOperationSwitch, } from "../state/action-creators";
 
 interface ChannelJoinedResponse {
   groupJoined: boolean,
@@ -17,8 +17,8 @@ class ChatHubConnection {
   createHubConnection = async (): Promise<boolean> => {
     let connectionEstablished = false;
     this.hubConnection = new HubConnectionBuilder()
-      .configureLogging(LogLevel.Critical)
-      .withUrl("http://localhost:5000/chat", {
+      .configureLogging(LogLevel.Error)
+      .withUrl("http://localhost:5100/chat", {
         accessTokenFactory: () => {
           if (store.getState().authenticatedUser !== null) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -29,7 +29,6 @@ class ChatHubConnection {
         },
       })
       .withAutomaticReconnect()
-      .configureLogging(LogLevel.Information)
       .build();
 
     await this.hubConnection
@@ -37,15 +36,16 @@ class ChatHubConnection {
       .then(() => {
         connectionEstablished = true;
       })
-      .catch((error) =>
-        console.log("Error establishing the connection: ", error),
-      );
+      .catch((error) => {
+        console.log("Error establishing the connection: ", error);
+      });
 
     this.hubConnection.on("GetChannels", (channels: string[]) => {
       store.dispatch(gotChannels(channels) as any);
     });
 
     this.hubConnection.on("ChannelJoined", (response: ChannelJoinedResponse) => {
+      store.dispatch(longOperationSwitch() as any);
       console.log(response);
     });
 
@@ -53,7 +53,7 @@ class ChatHubConnection {
   };
 
   joinChannel = (channel: string): void => {
-    console.log(channel)
+    store.dispatch(longOperationSwitch() as any);
     this.hubConnection?.invoke("JoinChannel", channel)
       .catch((error) => console.log(error));
   };

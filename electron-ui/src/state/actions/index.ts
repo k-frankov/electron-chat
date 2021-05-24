@@ -25,6 +25,11 @@ interface ChannelsReceivedAction {
   payload: string[];
 }
 
+interface LongOperationAction {
+  type: ActionType.LONGOPERATION;
+}
+
+export type LongOperation = LongOperationAction;
 export type ChannelsReceived = ChannelsReceivedAction;
 export type UserAuthAction = UserLoggedInActoin | UserLoggedOutAction;
 export type ChatHubConnectionStateAction =

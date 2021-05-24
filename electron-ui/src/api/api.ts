@@ -25,7 +25,7 @@ export async function addChannel(channel: string): Promise<ChannelResponse> {
   };
 
   await axios
-    .post("http://localhost:5000/api/channel", { channelName: channel }, conf)
+    .post("http://localhost:5100/api/channel", { channelName: channel }, conf)
     .catch((err) => (errorMessages = getErrorMessages(err)));
 
   return { errors: errorMessages };
@@ -38,7 +38,7 @@ export async function signUpApiCall(
   let errorMessages: string[] = [];
   let user: ChatUser | null = null;
   await axios
-    .post<ChatUser>("http://localhost:5000/api/auth/register", {
+    .post<ChatUser>("http://localhost:5100/api/auth/register", {
       userName: userName,
       password: password,
     })
@@ -58,7 +58,7 @@ export async function signInApiCall(
   let errorMessages: string[] = [];
   let user: ChatUser | null = null;
   await axios
-    .post<ChatUser>("http://localhost:5000/api/auth/signin", {
+    .post<ChatUser>("http://localhost:5100/api/auth/signin", {
       userName: userName,
       password: password,
     })

@@ -10,7 +10,7 @@ const reducer = (state = initialState, action: ChatHubConnectionStateAction): Ch
             return action.payload;
         case ActionType.CHAT_HUB_REMOVED:
             return null;
-        default: return null;
+        default: return state;
     }
 }
 

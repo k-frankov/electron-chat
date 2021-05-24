@@ -12,12 +12,14 @@ import "./style.css";
 import LogInOrSignup from "./auth/LogInOrSignUp";
 import MainPage from "./MainPage/MainPage";
 
+
 function App() {
   const dispatch = useDispatch();
   const { logOut } = bindActionCreators(actionCreators, dispatch);
   const userAuthState = useSelector(
     (state: AuthenticatedUser) => state.authenticatedUser,
   );
+
 
   const { colorMode, toggleColorMode } = useColorMode();
   const isDark = colorMode === "dark";

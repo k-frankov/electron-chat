@@ -45,4 +45,12 @@ export const gotChannels = (payload: string[]) => {
       payload: payload,
     });
   }
-} 
+}
+
+export const longOperationSwitch = () => {
+  return (dispatch: Dispatch): void => {
+    dispatch({
+      type: ActionType.LONGOPERATION,
+    });
+  };
+};

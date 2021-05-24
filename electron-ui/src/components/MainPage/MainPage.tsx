@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   Box,
   Flex,
@@ -8,12 +9,14 @@ import {
   Spacer,
 } from "@chakra-ui/react";
 import { CgEnter } from "react-icons/cg";
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
 import ChatHubConnection from "../../api/hubConnecton";
-import { actionCreators, ChannelsReceived, ChatHub } from "../../state";
+import { actionCreators, ChannelsReceived, ChatHub, LongOperation } from "../../state";
 import AddChannel from "./AddChannel";
+import { Modal, ModalContent, ModalOverlay, Spinner, HStack } from "@chakra-ui/react";
+
 
 const MainPage = (): JSX.Element => {
   const dispatch = useDispatch();
@@ -22,25 +25,34 @@ const MainPage = (): JSX.Element => {
     return state.channels;
   });
 
+  const longOperation = useSelector(
+    (state: LongOperation) => state.longOperation,
+  );
+
   const chatHub = useSelector((state: ChatHub) => {
     return state.chatHub;
   });
 
-  const hub = new ChatHubConnection();
-  async function createHubConnection() {
-    hub
-      .createHubConnection()
-      .then(() => {
-        setHubChat(hub);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
-
-  if (chatHub === null) {
-    createHubConnection();
-  }
+  useEffect(() => {
+    
+    async function createHubConnection() {
+      const hub = new ChatHubConnection();
+      hub
+        .createHubConnection()
+        .then(() => {
+          setHubChat(hub);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  
+    if (chatHub === null) {
+      console.log("asdfasdf")
+      createHubConnection();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatHub])
 
   return (
     <Flex style={{ height: "calc(100vh - 75px)", width: "100%" }}>
@@ -87,7 +99,7 @@ const MainPage = (): JSX.Element => {
                   {e}
                   <Spacer />
                   <IconButton
-                    onClick={() => chatHub?.joinChannel(e)}
+                    onClick={() => chatHub!.joinChannel(e)}
                     alignSelf="flex-end"
                     aria-label="join channel"
                     icon={<CgEnter />}
@@ -98,7 +110,17 @@ const MainPage = (): JSX.Element => {
           })}
         </List>
       </Box>
+      <Modal closeOnOverlayClick={false} isOpen={longOperation} onClose={() => { console.log("") }}>
+        <ModalOverlay />
+        <ModalContent alignSelf="center" alignContent="center" justifyContent="center">
+          <HStack w="600" h="600" justifyContent="center">
+            <Spinner size="lg" alignSelf="center" />
+          </HStack>
+        </ModalContent>
+      </Modal>
+
     </Flex>
+
   );
 };
 

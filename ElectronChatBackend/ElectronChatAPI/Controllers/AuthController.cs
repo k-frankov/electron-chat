@@ -92,7 +92,7 @@ namespace ElectronChatAPI.Controllers
                     Password = passwordHasher.HashPassword(user, user.Password),
                 };
 
-                //TODO: Add automapper 
+                //TODO: Add automapper
                 UserEntity newUser = await this.userRepository.CreateUserAsync(userEntity);
 
                 var claims = new List<Claim>
