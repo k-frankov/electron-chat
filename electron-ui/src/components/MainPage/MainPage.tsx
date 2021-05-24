@@ -87,6 +87,7 @@ const MainPage = (): JSX.Element => {
                   {e}
                   <Spacer />
                   <IconButton
+                    onClick={() => chatHub?.joinChannel(e)}
                     alignSelf="flex-end"
                     aria-label="join channel"
                     icon={<CgEnter />}

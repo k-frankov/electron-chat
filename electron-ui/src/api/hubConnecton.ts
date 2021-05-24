@@ -7,11 +7,17 @@ import {
 import { store } from "../state";
 import { gotChannels } from "../state/action-creators";
 
+interface ChannelJoinedResponse {
+  groupJoined: boolean,
+  groupName: string,
+}
+
 class ChatHubConnection {
   hubConnection: HubConnection | null = null;
   createHubConnection = async (): Promise<boolean> => {
     let connectionEstablished = false;
     this.hubConnection = new HubConnectionBuilder()
+      .configureLogging(LogLevel.Critical)
       .withUrl("http://localhost:5000/chat", {
         accessTokenFactory: () => {
           if (store.getState().authenticatedUser !== null) {
@@ -39,10 +45,15 @@ class ChatHubConnection {
       store.dispatch(gotChannels(channels) as any);
     });
 
+    this.hubConnection.on("ChannelJoined", (response: ChannelJoinedResponse) => {
+      console.log(response);
+    });
+
     return connectionEstablished;
   };
 
   joinChannel = (channel: string): void => {
+    console.log(channel)
     this.hubConnection?.invoke("JoinChannel", channel)
       .catch((error) => console.log(error));
   };
