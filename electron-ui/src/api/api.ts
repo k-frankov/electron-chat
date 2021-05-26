@@ -31,6 +31,32 @@ export async function addChannel(channel: string): Promise<ChannelResponse> {
   return { errors: errorMessages };
 }
 
+export async function shareFile(data: Uint8Array): Promise<string[]> {
+  let errorMessages: string[] = [];
+
+  if (store.getState().authenticatedUser === null) {
+    throw Error("User is not authorized.");
+  }
+  const dataAsBlob = new Blob([data]);
+  const formData = new FormData();
+  formData.append('file', dataAsBlob);
+
+  await axios
+    .post("http://localhost:5100/api/share", formData, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        Authorization: "Bearer " + store.getState().authenticatedUser?.jwtToken,
+      }
+    })
+    .then((resp) => {
+      console.log(resp);
+    })
+    .catch((err) => {
+      errorMessages = getErrorMessages(err);
+    });
+  return errorMessages;
+}
+
 export async function signUpApiCall(
   userName: string,
   password: string,

@@ -3,6 +3,8 @@ import { app, BrowserWindow } from "electron";
 import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from "electron-devtools-installer";
+const { ipcMain } = require('electron');
+const fs = require('fs')
 
 declare global {
   const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -77,6 +79,30 @@ app.on("activate", () => {
     createWindow();
   }
 });
+
+ipcMain.on('openFile', (event, path) => {
+  const { dialog } = require('electron')
+  if (mainWindow !== null) {
+    dialog.showOpenDialog(mainWindow)
+      .then((res) => {
+        if (res.filePaths.length > 0) {
+          readFile(res.filePaths[0]);
+        }
+      })
+      .catch(err => console.log(err))
+  }
+});
+
+function readFile(filepath: string) {
+  fs.readFile(filepath, (err: any, data: any) => {
+    if (err) {
+      console.log(err)
+      return;
+    }
+
+    mainWindow?.webContents.send("fileData", data);
+  })
+}
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.

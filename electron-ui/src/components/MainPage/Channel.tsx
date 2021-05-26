@@ -15,11 +15,22 @@ import React from "react";
 import { ChannelJoined, ChatHub, AuthenticatedUser } from "../../state";
 import { useSelector } from "react-redux";
 import { ChatMessage } from "../../state/models/chatMessage";
+import { shareFile } from "../../api/api";
+const { ipcRenderer } = window.require('electron');
+
+ipcRenderer.on('fileData', async (event, data) => {
+  const errors = await shareFile(data);
+  if (errors.length > 0) {
+    for(const shareError of errors) {
+      console.log(shareError);
+    }
+  }
+});
 
 const Channel = (): JSX.Element => {
   const chatHub = useSelector((state: ChatHub) => {
     return state.chatHub;
-  }); 
+  });
   const [channelUsers, setChannelUsers] = React.useState<string[]>([]);
   const [channelMessages, setChannelMessages] = React.useState<ChatMessage[]>(
     [],
@@ -134,7 +145,9 @@ const Channel = (): JSX.Element => {
                 setNewMessage("");
               }}
             />
-            <IconButton icon={<BiShare />} aria-label="send" />
+            <IconButton icon={<BiShare />} aria-label="send" onClick={() => {
+              ipcRenderer.send("openFile");
+            }} />
           </HStack>
         </Box>
       </VStack>
