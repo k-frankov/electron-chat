@@ -86,7 +86,7 @@ namespace ElectronChatAPI.Controllers
                 }
 
                 var passwordHasher = new PasswordHasher<UserDto>();
-                UserEntity userEntity = new UserEntity
+                UserEntity userEntity = new()
                 {
                     UserName = user.UserName,
                     Password = passwordHasher.HashPassword(user, user.Password),
@@ -120,8 +120,7 @@ namespace ElectronChatAPI.Controllers
 
         private async Task<UserEntity> TryFromCacheAddToCache(UserDto userDto)
         {
-            UserEntity user = null;
-            if (!this.memoryCache.TryGetValue(userDto.UserName, out user))
+            if (!this.memoryCache.TryGetValue(userDto.UserName, out UserEntity user))
             {
                 user = await this.userRepository.GetUserByUserNameAsync(userDto.UserName);
                 if (user != null)

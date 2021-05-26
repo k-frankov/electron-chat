@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using ElectronChatAPI.Extensions;
+using ElectronChatAPI.Models;
 using ElectronChatCosmosDB.Entities;
 using ElectronChatCosmosDB.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -15,12 +18,18 @@ namespace ElectronChatAPI.Hubs
     {
         private readonly ILogger<ElectronChatHub> logger;
         private readonly IChannelRepository channelRepository;
-        private Dictionary<string, string> usersInGroups = new Dictionary<string, string>();
+        private readonly IMessageRepository messageRepository;
+        private static readonly ReaderWriterLock rwl = new();
+        private readonly Dictionary<string, string> usersInGroups = new();
 
-        public ElectronChatHub(ILogger<ElectronChatHub> logger, IChannelRepository channelRepository)
+        public ElectronChatHub(
+            ILogger<ElectronChatHub> logger,
+            IChannelRepository channelRepository,
+            IMessageRepository messageRepository)
         {
             this.logger = logger;
             this.channelRepository = channelRepository;
+            this.messageRepository = messageRepository;
         }
 
         public override async Task OnConnectedAsync()
@@ -45,7 +54,7 @@ namespace ElectronChatAPI.Hubs
                 ChannelEntity channel = await this.channelRepository.GetChannelByNameAsync(groupName);
                 if (channel == null)
                 {
-                    await this.Clients.Caller.SendAsync("ChannelJoined", new { groupJoined = false, groupName = groupName });
+                    await this.Clients.Caller.SendAsync("ChannelJoined", new { groupJoined = false, groupName });
                 }
 
                 string userName = this.Context.User.GetUserName();
@@ -53,15 +62,72 @@ namespace ElectronChatAPI.Hubs
                 await this.LeaveGroupIfInGroup();
 
                 await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-                usersInGroups.Add(userName, groupName);
-                await this.Clients.Caller.SendAsync("ChannelJoined", new { groupJoined = true, groupName = groupName });
 
+                // TODO: Add pagination / retrieve portion by portion on demand;
+                List<MessageEntity> messagesFromDb = await this.messageRepository.GetAllMessagesInChannelAsync(groupName);
+                List<MessageDto> messages = new();
+
+                // TODO: Automapper would be nice...
+                messagesFromDb.ForEach(m =>
+                {
+                    messages.Add(new MessageDto
+                    {
+                        Message = m.Message,
+                        MessageTime = m.MessageTime.ToShortTimeString(),
+                        UserName = m.UserName,
+                    });
+                });
+
+                rwl.AcquireWriterLock(200);
+                try
+                {
+                    usersInGroups.Add(userName, groupName);
+                }
+                finally
+                {
+                    rwl.ReleaseWriterLock();
+                }
+
+                await this.Clients.Caller.SendAsync("ChannelJoined", new { groupJoined = true, groupName });
+                await this.Clients.Caller.SendAsync("GetUsersInChannel", this.GetGroupUsers(groupName));
+                await this.Clients.Caller.SendAsync("GetMessagesInChannel", messages);
                 await Clients.Group(groupName).SendAsync("SendToClientChannel", $"{userName} has joined the channel.");
             }
             catch (Exception ex)
             {
                 this.logger.LogError(ex.ToString());
-                await this.Clients.Caller.SendAsync("ChannelJoined", new { groupJoined = false, groupName = groupName });
+                await this.Clients.Caller.SendAsync("ChannelJoined", new { groupJoined = false, groupName });
+            }
+        }
+
+        public async Task SendMessageToChannel(string groupName, string message)
+        {
+            try
+            {
+                string userName = this.Context.User.GetUserName();
+                DateTime now = DateTime.UtcNow;
+                MessageDto messageDto = new()
+                {
+                    UserName = userName,
+                    Message = message,
+                    MessageTime = now.ToShortTimeString(),
+                };
+
+                await this.Clients.Group(groupName).SendAsync("GetMessageInChannel", messageDto);
+
+                MessageEntity messageEntity = new()
+                {
+                    UserName = messageDto.UserName,
+                    Message = messageDto.Message,
+                    MessageTime = now,
+                    ChannelName = groupName,
+                };
+
+                await this.messageRepository.AddMessageAsync(messageEntity);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex.ToString());
             }
         }
 
@@ -76,11 +142,42 @@ namespace ElectronChatAPI.Hubs
         {
             string userName = this.Context.User.GetUserName();
 
-            var userAlreadyInGroup = string.Empty;
-            if (usersInGroups.TryGetValue(userName, out userAlreadyInGroup))
+            rwl.AcquireReaderLock(200);
+            try
             {
-                await this.RemoveFromGroup(userAlreadyInGroup);
-                usersInGroups.Remove(userName);
+                if (usersInGroups.TryGetValue(userName, out string userAlreadyInGroup))
+                {
+                    await this.RemoveFromGroup(userAlreadyInGroup);
+                    rwl.AcquireWriterLock(200);
+                    try
+                    {
+                        _ = usersInGroups.Remove(userName);
+                    }
+                    finally
+                    {
+                        rwl.ReleaseWriterLock();
+                    }
+                }
+            }
+            finally
+            {
+                rwl.ReleaseReaderLock();
+            }
+        }
+
+        private List<string> GetGroupUsers(string groupName)
+        {
+            rwl.AcquireReaderLock(200);
+            try
+            {
+                return usersInGroups
+                    .Where(e => e.Value.ToLowerInvariant() == groupName.ToLowerInvariant())
+                    .Select(e => e.Key)
+                    .ToList();
+            }
+            finally
+            {
+                rwl.ReleaseReaderLock();
             }
         }
     }

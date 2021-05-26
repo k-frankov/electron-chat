@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ElectronChatAPI.Extensions;
 using ElectronChatAPI.Hubs;
 using ElectronChatAPI.Models;
 using ElectronChatCosmosDB.Entities;
@@ -50,7 +51,7 @@ namespace ElectronChatAPI.Controllers
                     return BadRequest("Channel with this name is already registered.");
                 }
 
-                ChannelEntity channelEntity = new ChannelEntity
+                ChannelEntity channelEntity = new()
                 {
                     ChannelName = channelDto.ChannelName,
                     UserName = userName,

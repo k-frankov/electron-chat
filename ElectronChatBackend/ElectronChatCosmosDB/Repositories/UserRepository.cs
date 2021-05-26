@@ -14,14 +14,12 @@ namespace ElectronChatCosmosDB.Repositories
         public async Task<UserEntity> CreateUserAsync(UserEntity userEntity)
         {
             userEntity.id = Guid.NewGuid();
-            using (CosmosClient client = base.GetCosmosClient())
-            {
-                Database db = client.GetDatabase(base.dBConfiguration.DBName);
-                Container container = db.GetContainer(ContainerName);
-                ItemResponse<UserEntity> result = await container.CreateItemAsync(userEntity);
+            using CosmosClient client = base.GetCosmosClient();
+            Database db = client.GetDatabase(base.dBConfiguration.DBName);
+            Container container = db.GetContainer(ContainerName);
+            ItemResponse<UserEntity> result = await container.CreateItemAsync(userEntity);
 
-                return result.Resource;
-            }
+            return result.Resource;
         }
 
         public async Task<UserEntity> GetUserByUserNameAsync(string userName)
@@ -34,13 +32,11 @@ namespace ElectronChatCosmosDB.Repositories
                 QueryDefinition query = new QueryDefinition("SELECT * FROM Users u WHERE u.UserName = @userName")
                     .WithParameter("@userName", userName);
 
-                using (FeedIterator<UserEntity> resultSetIterator = container.GetItemQueryIterator<UserEntity>(query))
+                using FeedIterator<UserEntity> resultSetIterator = container.GetItemQueryIterator<UserEntity>(query);
+                while (resultSetIterator.HasMoreResults)
                 {
-                    while (resultSetIterator.HasMoreResults)
-                    {
-                        FeedResponse<UserEntity> response = await resultSetIterator.ReadNextAsync();
-                        return response.Resource.FirstOrDefault();
-                    }
+                    FeedResponse<UserEntity> response = await resultSetIterator.ReadNextAsync();
+                    return response.Resource.FirstOrDefault();
                 }
             }
 

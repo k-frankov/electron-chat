@@ -1,5 +1,6 @@
 import ChatHubConnection from "../../api/hubConnecton";
 import { ActionType } from "../action-types";
+import { ChatMessage } from "../models/chatMessage";
 import { ChatUser } from "../models/chatUser";
 
 interface UserLoggedInActoin {

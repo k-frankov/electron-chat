@@ -40,6 +40,7 @@ namespace ElectronChatAPI
             this.InitDatabase();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IChannelRepository, ChannelRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

@@ -15,14 +15,12 @@ namespace ElectronChatCosmosDB.Repositories
         public async Task<ChannelEntity> CreateChannelAsync(ChannelEntity channelEntity)
         {
             channelEntity.id = Guid.NewGuid();
-            using (CosmosClient client = base.GetCosmosClient())
-            {
-                Database db = client.GetDatabase(base.dBConfiguration.DBName);
-                Container container = db.GetContainer(ContainerName);
-                ItemResponse<ChannelEntity> result = await container.CreateItemAsync(channelEntity);
+            using CosmosClient client = base.GetCosmosClient();
+            Database db = client.GetDatabase(base.dBConfiguration.DBName);
+            Container container = db.GetContainer(ContainerName);
+            ItemResponse<ChannelEntity> result = await container.CreateItemAsync(channelEntity);
 
-                return result.Resource;
-            }
+            return result.Resource;
         }
 
         public async Task<ChannelEntity> GetChannelByNameAsync(string channelName)
@@ -35,13 +33,11 @@ namespace ElectronChatCosmosDB.Repositories
                 QueryDefinition query = new QueryDefinition("SELECT * FROM Channels u WHERE u.ChannelName = @channelName")
                     .WithParameter("@channelName", channelName);
 
-                using (FeedIterator<ChannelEntity> resultSetIterator = container.GetItemQueryIterator<ChannelEntity>(query))
+                using FeedIterator<ChannelEntity> resultSetIterator = container.GetItemQueryIterator<ChannelEntity>(query);
+                while (resultSetIterator.HasMoreResults)
                 {
-                    while (resultSetIterator.HasMoreResults)
-                    {
-                        FeedResponse<ChannelEntity> response = await resultSetIterator.ReadNextAsync();
-                        return response.Resource.FirstOrDefault();
-                    }
+                    FeedResponse<ChannelEntity> response = await resultSetIterator.ReadNextAsync();
+                    return response.Resource.FirstOrDefault();
                 }
             }
 
@@ -56,15 +52,13 @@ namespace ElectronChatCosmosDB.Repositories
                 Database db = client.GetDatabase(base.dBConfiguration.DBName);
                 Container container = db.GetContainer(ContainerName);
 
-                QueryDefinition query = new QueryDefinition("SELECT * FROM Channels");
+                QueryDefinition query = new("SELECT * FROM Channels");
 
-                using (FeedIterator<ChannelEntity> resultSetIterator = container.GetItemQueryIterator<ChannelEntity>(query))
+                using FeedIterator<ChannelEntity> resultSetIterator = container.GetItemQueryIterator<ChannelEntity>(query);
+                while (resultSetIterator.HasMoreResults)
                 {
-                    while (resultSetIterator.HasMoreResults)
-                    {
-                        FeedResponse<ChannelEntity> response = await resultSetIterator.ReadNextAsync();
-                        result.AddRange(response);
-                    }
+                    FeedResponse<ChannelEntity> response = await resultSetIterator.ReadNextAsync();
+                    result.AddRange(response);
                 }
             }
 

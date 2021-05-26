@@ -30,7 +30,7 @@ namespace ElectronChatCosmosDB
                 throw new ArgumentNullException(dbName);
             }
 
-            using (CosmosClient client = new CosmosClient(endpointUrl, primaryKey))
+            using (CosmosClient client = new(endpointUrl, primaryKey))
             {
                 Database db = await client.CreateDatabaseIfNotExistsAsync(dbName);
                 await client.GetDatabase(dbName).DefineContainer(name: UserRepository.ContainerName, partitionKeyPath: "/UserName")
@@ -45,12 +45,21 @@ namespace ElectronChatCosmosDB
                         .Path("/ChannelName")
                     .Attach()
                     .CreateIfNotExistsAsync();
+
+                await client.GetDatabase(dbName).DefineContainer(name: MessageRepository.ContainerName, partitionKeyPath: "/ChannelName")
+                    .WithUniqueKey()
+                        .Path("/UserName")
+                        .Path("/MessageTime")
+                    .Attach()
+                    .CreateIfNotExistsAsync();
             }
 
-            _instance = new DBConfiguration();
-            _instance.EnpointUrl = endpointUrl;
-            _instance.PrimaryKey = primaryKey;
-            _instance.DBName = dbName;
+            _instance = new DBConfiguration
+            {
+                EnpointUrl = endpointUrl,
+                PrimaryKey = primaryKey,
+                DBName = dbName
+            };
         }
 
         public static DBConfiguration Instance
