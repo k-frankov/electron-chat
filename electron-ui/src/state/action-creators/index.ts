@@ -61,7 +61,7 @@ export const longOperationSwitch = () => {
   };
 };
 
-export const channelJoined = (payload: string) => {
+export const channelJoined = (payload: string | null) => {
   return (dispatch: Dispatch<ChannelJoined>): void => {
     dispatch({
       type: ActionType.CHANNEL_JOINED,

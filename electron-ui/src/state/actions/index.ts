@@ -1,6 +1,5 @@
 import ChatHubConnection from "../../api/hubConnecton";
 import { ActionType } from "../action-types";
-import { ChatMessage } from "../models/chatMessage";
 import { ChatUser } from "../models/chatUser";
 
 interface UserLoggedInActoin {
@@ -32,7 +31,7 @@ interface LongOperationAction {
 
 interface ChannelJoinedAction {
   type: ActionType.CHANNEL_JOINED;
-  payload: string;
+  payload: string | null;
 }
 
 export type ChannelJoined = ChannelJoinedAction;

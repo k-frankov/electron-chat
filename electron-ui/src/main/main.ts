@@ -80,6 +80,11 @@ app.on("activate", () => {
   }
 });
 
+ipcMain.on('openExternalLink', (event, link) => {
+  console.log("hello", link);
+  require("electron").shell.openExternal(link);
+})
+
 ipcMain.on('openFile', (event, path) => {
   const { dialog } = require('electron')
   if (mainWindow !== null) {

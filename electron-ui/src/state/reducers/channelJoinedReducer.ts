@@ -1,9 +1,9 @@
 import { ActionType } from "../action-types";
 import { ChannelJoined } from "../actions";
 
-const initialState = "";
+const initialState = null;
 
-const reducer = (state = initialState, action: ChannelJoined): string => {
+const reducer = (state = initialState, action: ChannelJoined): string | null => {
     switch (action.type) {
         case ActionType.CHANNEL_JOINED:
             return action.payload;

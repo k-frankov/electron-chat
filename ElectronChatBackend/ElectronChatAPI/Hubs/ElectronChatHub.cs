@@ -47,6 +47,21 @@ namespace ElectronChatAPI.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
+        public async Task QuitChannel(string groupName)
+        {
+            try
+            {
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+                await this.LeaveGroupIfInGroup();
+                await Clients.Group(groupName).SendAsync("SendToClientChannel", $"{this.Context.User.GetUserName()} has left the channel.");
+                await this.Clients.Caller.SendAsync("ChannelJoined", new { groupJoined = true, string.Empty });
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex.ToString());
+            }
+        }
+
         public async Task JoinChannel(string groupName)
         {
             try

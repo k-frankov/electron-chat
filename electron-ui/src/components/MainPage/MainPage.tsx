@@ -73,6 +73,7 @@ const MainPage = (): JSX.Element => {
       <Box
         border="1px"
         maxW="25vw"
+        minW="25vw"
         borderRadius="16"
         flex="1"
         textAlign="center"
@@ -124,7 +125,9 @@ const MainPage = (): JSX.Element => {
           })}
         </List>
       </Box>
-      { channelName !== "" ? <Channel /> : null }
+      {
+        (channelName !== null && channelName !== "") ? <Channel /> : null
+      }
       <Modal
         closeOnOverlayClick={false}
         isOpen={longOperation}

@@ -67,7 +67,7 @@ class ChatHubConnection {
       (response: ChannelJoinedResponse) => {
         store.dispatch(longOperationSwitch() as any);
         if (response.groupJoined) {
-          store.dispatch(channelJoined(response.groupName) as any);
+          store.dispatch(channelJoined(response.groupName === undefined ? null : response.groupName) as any);
         }
       },
     );
@@ -107,6 +107,13 @@ class ChatHubConnection {
     store.dispatch(longOperationSwitch() as any);
     this.hubConnection
       ?.invoke("JoinChannel", channel)
+      .catch((error) => console.log(error));
+  };
+
+  quitChannel = (channel: string): void => {
+    store.dispatch(longOperationSwitch() as any);
+    this.hubConnection
+      ?.invoke("QuitChannel", channel)
       .catch((error) => console.log(error));
   };
 

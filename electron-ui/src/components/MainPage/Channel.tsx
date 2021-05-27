@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { HStack, Spacer, VStack } from "@chakra-ui/layout";
 import {
   Badge,
@@ -48,6 +49,16 @@ const Channel = (): JSX.Element => {
     });
   }, [toast]);
 
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    console.log(messagesEndRef)
+    if (messagesEndRef !== null && messagesEndRef.current !== null) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      messagesEndRef!.current!.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
   if (chatHub !== null) {
     chatHub.channelUsersCallback = (users: string[]): void => {
       setChannelUsers(users);
@@ -60,6 +71,7 @@ const Channel = (): JSX.Element => {
 
     chatHub.channelNewMessageCallback = (message: ChatMessage): void => {
       setChannelMessages([...channelMessages, message]);
+      scrollToBottom();
     };
   }
 
@@ -67,7 +79,7 @@ const Channel = (): JSX.Element => {
     return state.authenticatedUser;
   });
 
-  const currentChannelName: string = useSelector((state: ChannelJoined) => {
+  const currentChannelName: string | null = useSelector((state: ChannelJoined) => {
     return state.channelJoined;
   });
 
@@ -90,7 +102,6 @@ const Channel = (): JSX.Element => {
             padding="2"
           >
             {channelMessages.map((message: ChatMessage, key) => {
-              console.log(message);
               if (
                 message.sharedLink !== null &&
                 message.sharedLink !== undefined &&
@@ -104,7 +115,7 @@ const Channel = (): JSX.Element => {
                           <Badge variant="solid" colorScheme="green">
                             {message.userName}
                           </Badge>{" "}
-                          <Link color="teal.500" href={message.sharedLink}>
+                          <Link color="teal.500" onClick={() => { ipcRenderer.send("openExternalLink", message.sharedLink); }}>
                             shared something with you!
                           </Link>
                         </Box>
@@ -153,6 +164,7 @@ const Channel = (): JSX.Element => {
                 );
               }
             })}
+            <div ref={messagesEndRef} />
           </List>
         </VStack>
         <Box h="60px" w="100%" border="1px" borderRadius="4" padding="9px">
@@ -163,7 +175,7 @@ const Channel = (): JSX.Element => {
               value={newMessage}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  chatHub?.sendMessageToChannel(currentChannelName, newMessage);
+                  chatHub?.sendMessageToChannel(currentChannelName!, newMessage);
                   setNewMessage("");
                 }
               }}
@@ -176,7 +188,7 @@ const Channel = (): JSX.Element => {
               icon={<MdSend />}
               aria-label="send"
               onClick={() => {
-                chatHub?.sendMessageToChannel(currentChannelName, newMessage);
+                chatHub?.sendMessageToChannel(currentChannelName!, newMessage);
                 setNewMessage("");
               }}
             />
