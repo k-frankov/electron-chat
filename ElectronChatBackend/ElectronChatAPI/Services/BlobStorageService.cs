@@ -18,10 +18,9 @@ namespace ElectronChatAPI.Services
 
         public BlobStorageService(IConfiguration configuration, ILogger<BlobStorageService> logger)
         {
-            this.storageConnectionString = configuration.GetValue<string>("StorageConnectionString");
             this.logger = logger;
+            this.storageConnectionString = configuration.GetValue<string>("StorageConnectionString");
         }
-
         public async Task<FileUploadResultDto> UploadFileToStorage(IFormFile file, string userName)
         {
             FileUploadResultDto fileUploadResultDto = new();

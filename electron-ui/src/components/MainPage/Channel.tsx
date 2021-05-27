@@ -6,6 +6,7 @@ import {
   Heading,
   IconButton,
   Input,
+  Link,
   List,
   ListItem,
   useToast,
@@ -17,7 +18,7 @@ import { ChannelJoined, ChatHub, AuthenticatedUser } from "../../state";
 import { useSelector } from "react-redux";
 import { ChatMessage } from "../../state/models/chatMessage";
 import { shareFile } from "../../api/api";
-const { ipcRenderer } = window.require('electron');
+const { ipcRenderer } = window.require("electron");
 
 const Channel = (): JSX.Element => {
   const chatHub = useSelector((state: ChatHub) => {
@@ -28,10 +29,10 @@ const Channel = (): JSX.Element => {
     [],
   );
   const [newMessage, setNewMessage] = React.useState<string>("");
-  
+
   const toast = useToast();
   React.useEffect(() => {
-    ipcRenderer.on('fileData', async (event, data, fileName) => {
+    ipcRenderer.on("fileData", async (event, data, fileName) => {
       const errors = await shareFile(data, fileName);
       if (errors.length > 0) {
         for (const shareError of errors) {
@@ -53,7 +54,7 @@ const Channel = (): JSX.Element => {
     };
 
     chatHub.channelOldMessagesCallback = (messages: ChatMessage[]): void => {
-      console.log(messages)
+      console.log(messages);
       setChannelMessages(messages);
     };
 
@@ -89,6 +90,30 @@ const Channel = (): JSX.Element => {
             padding="2"
           >
             {channelMessages.map((message: ChatMessage, key) => {
+              console.log(message);
+              if (
+                message.sharedLink !== null &&
+                message.sharedLink !== undefined &&
+                message.sharedLink !== ""
+              ) {
+                return (
+                  <ListItem key={key} justifySelf="center">
+                    <Flex>
+                      <VStack width="100%" flex={1}>
+                        <Box width="100%" textAlign="center">
+                          <Badge variant="solid" colorScheme="green">
+                            {message.userName}
+                          </Badge>{" "}
+                          <Link color="teal.500" href={message.sharedLink}>
+                            shared something with you!
+                          </Link>
+                        </Box>
+                      </VStack>
+                    </Flex>
+                  </ListItem>
+                );
+              }
+
               if (message.userName === currentUser?.userName) {
                 return (
                   <ListItem key={key} justifySelf="end">
@@ -155,9 +180,13 @@ const Channel = (): JSX.Element => {
                 setNewMessage("");
               }}
             />
-            <IconButton icon={<BiShare />} aria-label="send" onClick={() => {
-              ipcRenderer.send("openFile");
-            }} />
+            <IconButton
+              icon={<BiShare />}
+              aria-label="send"
+              onClick={() => {
+                ipcRenderer.send("openFile");
+              }}
+            />
           </HStack>
         </Box>
       </VStack>

@@ -5,5 +5,6 @@
         public string UserName { get; set; }
         public string MessageTime { get; set; }
         public string Message { get; set; }
+        public string SharedLink { get; set; }
     }
 }

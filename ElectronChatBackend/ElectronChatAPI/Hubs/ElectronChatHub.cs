@@ -75,6 +75,7 @@ namespace ElectronChatAPI.Hubs
                         Message = m.Message,
                         MessageTime = m.MessageTime.ToShortTimeString(),
                         UserName = m.UserName,
+                        SharedLink = m.SharedLink,
                     });
                 });
 
