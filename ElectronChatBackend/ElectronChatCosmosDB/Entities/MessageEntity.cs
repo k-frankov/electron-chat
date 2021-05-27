@@ -7,5 +7,6 @@
         public string UserName { get; set; }
         public System.DateTime MessageTime { get; set; }
         public string Message { get; set; }
+        public string SharedLink { get; set; }
     }
 }

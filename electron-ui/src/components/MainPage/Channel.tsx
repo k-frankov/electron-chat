@@ -8,6 +8,7 @@ import {
   Input,
   List,
   ListItem,
+  useToast,
 } from "@chakra-ui/react";
 import { MdSend } from "react-icons/md";
 import { BiShare } from "react-icons/bi";
@@ -18,15 +19,6 @@ import { ChatMessage } from "../../state/models/chatMessage";
 import { shareFile } from "../../api/api";
 const { ipcRenderer } = window.require('electron');
 
-ipcRenderer.on('fileData', async (event, data, fileName) => {
-  const errors = await shareFile(data, fileName);
-  if (errors.length > 0) {
-    for(const shareError of errors) {
-      console.log(shareError);
-    }
-  }
-});
-
 const Channel = (): JSX.Element => {
   const chatHub = useSelector((state: ChatHub) => {
     return state.chatHub;
@@ -36,6 +28,24 @@ const Channel = (): JSX.Element => {
     [],
   );
   const [newMessage, setNewMessage] = React.useState<string>("");
+  
+  const toast = useToast();
+  React.useEffect(() => {
+    ipcRenderer.on('fileData', async (event, data, fileName) => {
+      const errors = await shareFile(data, fileName);
+      if (errors.length > 0) {
+        for (const shareError of errors) {
+          toast({
+            title: "Something wrong happened",
+            description: shareError,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        }
+      }
+    });
+  }, [toast]);
 
   if (chatHub !== null) {
     chatHub.channelUsersCallback = (users: string[]): void => {

@@ -1,11 +1,13 @@
 ﻿using System.Text.Json;
 using System.Threading.Tasks;
 using ElectronChatAPI.Extensions;
+using ElectronChatAPI.Hubs;
 using ElectronChatAPI.Models;
 using ElectronChatAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace ElectronChatAPI.Controllers
@@ -17,15 +19,17 @@ namespace ElectronChatAPI.Controllers
     {
         private readonly ILogger<ShareController> logger;
         private readonly IBlobStorageService blobStorageService;
+        private readonly IHubContext<ElectronChatHub> hubContext;
 
-        public ShareController(ILogger<ShareController> logger, IBlobStorageService blobStorageService)
+        public ShareController(ILogger<ShareController> logger, IBlobStorageService blobStorageService, IHubContext<ElectronChatHub> hubContext)
         {
             this.logger = logger;
             this.blobStorageService = blobStorageService;
+            this.hubContext = hubContext;
         }
 
-        [HttpPost()]
-        public async Task<IActionResult> ShareFile()
+        [HttpPost("{group}")]
+        public async Task<IActionResult> ShareFile(string group)
         {
             try
             {
@@ -52,14 +56,17 @@ namespace ElectronChatAPI.Controllers
 
                 if (fileUploadResult.Errors.Count == 0)
                 {
-                    return Ok();
-                }
-                else
-                {
-                    this.logger.LogError($"Share file errors: {JsonSerializer.Serialize(fileUploadResult.Errors)}");
-                    return StatusCode(StatusCodes.Status500InternalServerError, fileUploadResult.Errors);
+                    if (!string.IsNullOrWhiteSpace(group))
+                    {
+                        await this.hubContext.Clients.Groups(group).SendAsync("GetMessageInChannel", null);
+                    }
+                    else
+                    {
+                        this.logger.LogWarning("Group name is not provided during file sharing...");
+                    }
                 }
 
+                return Ok();
             }
             catch (System.Exception ex)
             {

@@ -42,7 +42,7 @@ export async function shareFile(data: Uint8Array, fileName: string): Promise<str
   formData.append(fileName, dataAsBlob, fileName);
 
   await axios
-    .post(`http://localhost:5100/api/share`, formData, {
+    .post(`http://localhost:5100/api/share/${store.getState()?.channelJoined}`, formData, {
       headers: {
         'Content-Type': 'application/octet-stream',
         Authorization: "Bearer " + store.getState().authenticatedUser?.jwtToken,

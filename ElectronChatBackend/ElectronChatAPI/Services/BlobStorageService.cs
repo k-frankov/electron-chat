@@ -34,7 +34,7 @@ namespace ElectronChatAPI.Services
 
                 BlobClient blockBlob = blobContainer.GetBlobClient($"{userName}/{file.Name}");
                 using Stream readStream = file.OpenReadStream();
-                await blockBlob.UploadAsync(readStream);
+                await blockBlob.UploadAsync(readStream, true);
 
                 fileUploadResultDto.UploadedFileUrl = blockBlob.Uri.ToString();
                 return fileUploadResultDto;
