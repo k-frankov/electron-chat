@@ -31,7 +31,7 @@ export async function addChannel(channel: string): Promise<ChannelResponse> {
   return { errors: errorMessages };
 }
 
-export async function shareFile(data: Uint8Array): Promise<string[]> {
+export async function shareFile(data: Uint8Array, fileName: string): Promise<string[]> {
   let errorMessages: string[] = [];
 
   if (store.getState().authenticatedUser === null) {
@@ -39,10 +39,10 @@ export async function shareFile(data: Uint8Array): Promise<string[]> {
   }
   const dataAsBlob = new Blob([data]);
   const formData = new FormData();
-  formData.append('file', dataAsBlob);
+  formData.append(fileName, dataAsBlob, fileName);
 
   await axios
-    .post("http://localhost:5100/api/share", formData, {
+    .post(`http://localhost:5100/api/share`, formData, {
       headers: {
         'Content-Type': 'application/octet-stream',
         Authorization: "Bearer " + store.getState().authenticatedUser?.jwtToken,

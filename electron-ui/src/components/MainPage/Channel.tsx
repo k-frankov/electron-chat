@@ -18,8 +18,8 @@ import { ChatMessage } from "../../state/models/chatMessage";
 import { shareFile } from "../../api/api";
 const { ipcRenderer } = window.require('electron');
 
-ipcRenderer.on('fileData', async (event, data) => {
-  const errors = await shareFile(data);
+ipcRenderer.on('fileData', async (event, data, fileName) => {
+  const errors = await shareFile(data, fileName);
   if (errors.length > 0) {
     for(const shareError of errors) {
       console.log(shareError);

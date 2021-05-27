@@ -100,7 +100,10 @@ function readFile(filepath: string) {
       return;
     }
 
-    mainWindow?.webContents.send("fileData", data);
+   const pathArray = process.platform === "win32" ? filepath.split("\\") : filepath.split("/");
+   const fileName =  pathArray[pathArray.length - 1];
+   
+    mainWindow?.webContents.send("fileData", data, fileName);
   })
 }
 

@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using ElectronChatAPI.Hubs;
 using System.Threading.Tasks;
+using ElectronChatAPI.Services;
 
 namespace ElectronChatAPI
 {
@@ -41,6 +42,7 @@ namespace ElectronChatAPI
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IChannelRepository, ChannelRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
+            services.AddScoped<IBlobStorageService, BlobStorageService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
