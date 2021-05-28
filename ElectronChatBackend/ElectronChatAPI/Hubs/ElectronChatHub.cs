@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace ElectronChatAPI.Hubs
 {
     [Authorize]
-    public class ElectronChatHub : Hub
+    public class ElectronChatHub : Hub, IElectronChatHub
     {
         private readonly ILogger<ElectronChatHub> logger;
         private readonly IChannelRepository channelRepository;
@@ -152,6 +152,16 @@ namespace ElectronChatAPI.Hubs
             string userName = this.Context.User.GetUserName();
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
             await Clients.Group(groupName).SendAsync("Send", $"{userName} has left the channel.");
+        }
+
+        public async Task SetChannels(List<string> channelNames)
+        {
+            await Clients.All.SendAsync("GetChannels", channelNames);
+        }
+
+        async Task IElectronChatHub.SendMessageToChannel(string groupName, MessageDto messageDto)
+        {
+            await Clients.Groups(groupName).SendAsync("GetMessageInChannel", messageDto);
         }
 
         private async Task LeaveGroupIfInGroup()

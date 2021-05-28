@@ -39,11 +39,14 @@ namespace ElectronChatAPI
             services.AddControllers();
 
             this.InitDatabase();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IChannelRepository, ChannelRepository>();
-            services.AddScoped<IMessageRepository, MessageRepository>();
-            services.AddScoped<IBlobStorageService, BlobStorageService>();
+            this.ConfigureDependencies(services);
+            this.ConfigureAuthentication(services);
 
+            services.AddSignalR(options => { options.EnableDetailedErrors = true; });
+        }
+
+        public virtual void ConfigureAuthentication(IServiceCollection services)
+        {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -76,16 +79,22 @@ namespace ElectronChatAPI
                         }
                     };
                 });
-
-            services.AddSignalR(options => { options.EnableDetailedErrors = true; });
         }
 
-        protected virtual void InitDatabase()
+        public virtual void InitDatabase()
         {
             DBConfiguration.Initialize(
                 this.Configuration.GetValue<string>("DBEndpointUrl"),
                 this.Configuration.GetValue<string>("DBPrimaryKey"),
                 this.Configuration.GetValue<string>("DBName"));
+        }
+
+        public virtual void ConfigureDependencies(IServiceCollection services)
+        {
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IChannelRepository, ChannelRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
+            services.AddScoped<IBlobStorageService, BlobStorageService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

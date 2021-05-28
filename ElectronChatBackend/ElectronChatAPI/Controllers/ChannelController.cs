@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using ElectronChatAPI.Extensions;
 using ElectronChatAPI.Hubs;
 using ElectronChatAPI.Models;
+
 using ElectronChatCosmosDB.Entities;
 using ElectronChatCosmosDB.Interfaces;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace ElectronChatAPI.Controllers
@@ -22,12 +24,12 @@ namespace ElectronChatAPI.Controllers
     {
         private readonly ILogger<ChannelController> logger;
         private readonly IChannelRepository channelRepository;
-        private readonly IHubContext<ElectronChatHub> hubContext;
+        private readonly IElectronChatHub hubContext;
 
         public ChannelController(
             ILogger<ChannelController> logger,
             IChannelRepository channelRepository,
-            IHubContext<ElectronChatHub> hubContext)
+            IElectronChatHub hubContext)
         {
             this.logger = logger;
             this.channelRepository = channelRepository;
@@ -60,7 +62,7 @@ namespace ElectronChatAPI.Controllers
                 await this.channelRepository.CreateChannelAsync(channelEntity);
                 List<ChannelEntity> channels = await this.channelRepository.GetAllChannelsAsync();
                 List<string> channelNames = channels.Select(x => x.ChannelName).ToList();
-                await this.hubContext.Clients.All.SendAsync("GetChannels", channelNames);
+                await this.hubContext.SetChannels(channelNames);
 
                 return Ok();
             }

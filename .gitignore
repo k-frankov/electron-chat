@@ -6,6 +6,8 @@
 /ElectronChatBackend/.vs
 /ElectronChatBackend/ElectronChatAPI/bin
 /ElectronChatBackend/ElectronChatAPI/obj
+/ElectronChatBackend/ElectronChatAPI.Tests/bin
+/ElectronChatBackend/ElectronChatAPI.Tests/obj
 /ElectronChatBackend/ElectronChatCosmosDB/ElectronChatCosmosDB.csproj.user
 /ElectronChatBackend/ElectronChatCosmosDB/obj/
 /ElectronChatBackend/ElectronChatCosmosDB/bin/

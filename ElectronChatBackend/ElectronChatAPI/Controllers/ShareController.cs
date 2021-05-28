@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
+
 using ElectronChatAPI.Extensions;
 using ElectronChatAPI.Hubs;
 using ElectronChatAPI.Models;
 using ElectronChatAPI.Services;
+
 using ElectronChatCosmosDB.Entities;
 using ElectronChatCosmosDB.Interfaces;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace ElectronChatAPI.Controllers
@@ -21,13 +23,13 @@ namespace ElectronChatAPI.Controllers
     {
         private readonly ILogger<ShareController> logger;
         private readonly IBlobStorageService blobStorageService;
-        private readonly IHubContext<ElectronChatHub> hubContext;
+        private readonly IElectronChatHub hubContext;
         private readonly IMessageRepository messageRepository;
 
         public ShareController(
             ILogger<ShareController> logger,
             IBlobStorageService blobStorageService,
-            IHubContext<ElectronChatHub> hubContext,
+            IElectronChatHub hubContext,
             IMessageRepository messageRepository)
         {
             this.logger = logger;
@@ -76,7 +78,7 @@ namespace ElectronChatAPI.Controllers
                             SharedLink = fileUploadResult.UploadedFileUrl,
                         };
 
-                        await this.hubContext.Clients.Groups(group).SendAsync("GetMessageInChannel", messageDto);
+                        await this.hubContext.SendMessageToChannel(group, messageDto);
 
                         MessageEntity messageEntity = new()
                         {
